@@ -1,0 +1,42 @@
+.slider {
+    width: 1500px;
+    height: 300px;
+    background-color: grey;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    overflow: hidden;
+    position: relative;
+}
+
+.slider img {
+    height: auto;
+    width: auto;
+    transition: max-width 0.8s;
+}
+
+.slider .arrow-wrapper {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.slider .arrow-wrapper .arrow {
+    display: none;
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 35px;
+    font-weight: 800;
+    text-align: center;
+    margin-top: 5px;
+    width: 41px;
+    border-radius: 90px;
+    color: white;
+}
+
+.slider .arrow-wrapper .arrow:hover {
+    opacity: 0.7;
+    background-color: black;
+}
