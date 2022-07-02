@@ -12,7 +12,7 @@
 .slider img {
     height: auto;
     width: auto;
-    transition: max-width 0.8s;
+    transition: transform 0.8s;
 }
 
 .slider .arrow-wrapper {

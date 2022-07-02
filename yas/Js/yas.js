@@ -1,6 +1,3 @@
-// Note
-console.log("Loading...")
-
 let position = 0;
 let rightQue = 0;
 let leftQue = 0;
@@ -11,6 +8,8 @@ let numberOfImagesInSlider;
 let widthOfSlider;
 let widthOfImage;
 let lastClickedArrow;
+let rightBtnClicks = 0;
+var last = 0;
 const initSliderLogic = (sliderInstance) => {
   imagesInSlider = getImagesInSlider(sliderInstance);
   numberOfImagesInSlider = countNumberOfImagesInSlider(imagesInSlider);
@@ -41,11 +40,14 @@ const addLeftClickAction = (rightArrow, leftArrow) => {
     if (lastClickedArrow === "right") position--;
     if (position === -1) position = 0;
     console.log("click");
-    for (let i = 0; i < imagesPerFrame && leftQue > 0; i++) {
-      if (imagesInSlider[position]?.className === "arrow-wrapper") continue;
+    for (let i = 0; i < imagesPerFrame; i++) {
       rightQue++;
       leftQue--;
-      imagesInSlider[position].style.maxWidth = widthOfImage + "px";
+      // imagesInSlider[position].style.maxWidth = widthOfImage + "px";
+      for (let i = 0; i < numberOfImagesInSlider; i++) {
+        if (imagesInSlider[i]?.className === "arrow-wrapper") continue;
+        imagesInSlider[i].style.transform = `translateX(${widthOfImage}px)`;
+      }     
       console.log("Moving item:" + position);
       position--;
     }
@@ -64,17 +66,26 @@ const addRightClickAction = (rightArrow, leftArrow) => {
     if (position === -1) position = 0;
     console.log("click");
     for (let i = 0; i < imagesPerFrame && rightQue > 0; i++) {
-      if (imagesInSlider[position]?.className === "arrow-wrapper") continue;
       rightQue--;
       leftQue++;
-      imagesInSlider[position].style.maxWidth = "0px";
-      console.log("Moving item:" + position);
+      // imagesInSlider[position].style.maxWidth = "0px";
+      for (let v = 0; v < numberOfImagesInSlider; v++) {
+        if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
+        const tst = i === 0 ? 1 : i + 1;
+        var value = widthOfImage*tst + last;
+        var test = `translateX(-${value}px)`;
+        imagesInSlider[v].style.transform = test;
+        console.log("Moving item:" + v + "," + test);
+      }    
+      // console.log("Moving item:" + position);
       position++;
     }
     console.log("RighQue:" + rightQue, "LeftQue:" + leftQue);
-    if (rightQue === 0) hideArrow(getArrowById("arrowRight"));
+    if (rightQue <= 0) hideArrow(getArrowById("arrowRight"));
     if (leftQue > 0) showArrow(leftArrow);
     lastClickedArrow = "right";
+    rightBtnClicks++;
+    last = value;
   });
 };
 
