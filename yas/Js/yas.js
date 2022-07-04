@@ -40,23 +40,27 @@ const addLeftClickAction = (rightArrow, leftArrow) => {
     if (lastClickedArrow === "right") position--;
     if (position === -1) position = 0;
     console.log("click");
-    for (let i = 0; i < imagesPerFrame; i++) {
+    for (let i = 0; i < imagesPerFrame && leftQue > 0; i++) {
       rightQue++;
       leftQue--;
       // imagesInSlider[position].style.maxWidth = widthOfImage + "px";
-      for (let i = 0; i < numberOfImagesInSlider; i++) {
-        if (imagesInSlider[i]?.className === "arrow-wrapper") continue;
-        imagesInSlider[i].style.transform = `translateX(${widthOfImage}px)`;
-      }     
-      console.log("Moving item:" + position);
-      position--;
+      for (let v = 0; v < numberOfImagesInSlider; v++) {
+        if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
+        const tst = i === 0 ? 1 : i + 1;
+        var value = Math.abs((widthOfImage * tst) - last);
+        var test = `translateX(-${value}px)`;
+        imagesInSlider[v].style.transform = test;
+        console.log("Moving item:" + v + "," + test);
+      }    
+      // console.log("Moving item:" + position);
+      position++;
     }
     console.log("RighQue:" + rightQue, "LeftQue:" + leftQue);
-    if (rightQue === 0) hideArrow(getArrowById("arrowRight"));
-    else showArrow(getArrowById("arrowRight"));
-    if (leftQue > 0) showArrow(leftArrow);
-    else hideArrow(leftArrow);
-    lastClickedArrow = "left";
+    if (rightQue > 0) showArrow(rightArrow);
+    if (leftQue <= 0) hideArrow(leftArrow);
+    lastClickedArrow = "right";
+    rightBtnClicks++;
+    last = value;
   });
 };
 
@@ -72,7 +76,7 @@ const addRightClickAction = (rightArrow, leftArrow) => {
       for (let v = 0; v < numberOfImagesInSlider; v++) {
         if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
         const tst = i === 0 ? 1 : i + 1;
-        var value = widthOfImage*tst + last;
+        var value = widthOfImage * tst + last;
         var test = `translateX(-${value}px)`;
         imagesInSlider[v].style.transform = test;
         console.log("Moving item:" + v + "," + test);
