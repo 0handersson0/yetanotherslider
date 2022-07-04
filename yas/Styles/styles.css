@@ -1,6 +1,6 @@
 .slider {
-    width: 1500px;
-    height: 300px;
+    width: auto;
+    height: auto;
     background-color: grey;
     display: flex;
     flex-wrap: nowrap;

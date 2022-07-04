@@ -10,20 +10,26 @@ let widthOfImage;
 let lastClickedArrow;
 let rightBtnClicks = 0;
 var last = 0;
-const initSliderLogic = (sliderInstance) => {
+const initSliderLogic = (sliderInstance, isResizeEvent) => {
+  if(sliderInstance === null) {
+    sliderInstance = getSliderReferenceById("slider");
+  } 
+  console.log("running init");
   imagesInSlider = getImagesInSlider(sliderInstance);
   numberOfImagesInSlider = countNumberOfImagesInSlider(imagesInSlider);
   widthOfSlider = getWidthOfSlider(sliderInstance);
-  widthOfImage = getImageWidth(sliderInstance);
+  imagesPerFrame = getimagesPerFrameValue(sliderInstance);
+  widthOfImage = widthOfSlider / imagesPerFrame;
   setWidthOfChildren(imagesInSlider, widthOfImage);
-  imagesPerFrame = widthOfSlider / widthOfImage;
   rightQue = numberOfImagesInSlider - imagesPerFrame;
   onDisplay = imagesPerFrame;
-  if (numberOfImagesInSlider > imagesPerFrame) {
-    addArrowsToDOM(sliderInstance);
-    showArrow(getArrowById("arrowRight"));
-    addRightClickAction(getArrowById("arrowRight"), getArrowById("arrowLeft"));
-    addLeftClickAction(getArrowById("arrowRight"), getArrowById("arrowLeft"));
+  if(!isResizeEvent) {
+    if (numberOfImagesInSlider > imagesPerFrame) {
+      addArrowsToDOM(sliderInstance);
+      showArrow(getArrowById("arrowRight"));
+      addRightClickAction(getArrowById("arrowRight"), getArrowById("arrowLeft"));
+      addLeftClickAction(getArrowById("arrowRight"), getArrowById("arrowLeft"));
+    }
   }
   console.log(
     numberOfImagesInSlider,
@@ -43,7 +49,6 @@ const addLeftClickAction = (rightArrow, leftArrow) => {
     for (let i = 0; i < imagesPerFrame && leftQue > 0; i++) {
       rightQue++;
       leftQue--;
-      // imagesInSlider[position].style.maxWidth = widthOfImage + "px";
       for (let v = 0; v < numberOfImagesInSlider; v++) {
         if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
         const tst = i === 0 ? 1 : i + 1;
@@ -52,7 +57,6 @@ const addLeftClickAction = (rightArrow, leftArrow) => {
         imagesInSlider[v].style.transform = test;
         console.log("Moving item:" + v + "," + test);
       }    
-      // console.log("Moving item:" + position);
       position++;
     }
     console.log("RighQue:" + rightQue, "LeftQue:" + leftQue);
@@ -72,7 +76,6 @@ const addRightClickAction = (rightArrow, leftArrow) => {
     for (let i = 0; i < imagesPerFrame && rightQue > 0; i++) {
       rightQue--;
       leftQue++;
-      // imagesInSlider[position].style.maxWidth = "0px";
       for (let v = 0; v < numberOfImagesInSlider; v++) {
         if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
         const tst = i === 0 ? 1 : i + 1;
@@ -81,7 +84,6 @@ const addRightClickAction = (rightArrow, leftArrow) => {
         imagesInSlider[v].style.transform = test;
         console.log("Moving item:" + v + "," + test);
       }    
-      // console.log("Moving item:" + position);
       position++;
     }
     console.log("RighQue:" + rightQue, "LeftQue:" + leftQue);
@@ -92,6 +94,10 @@ const addRightClickAction = (rightArrow, leftArrow) => {
     last = value;
   });
 };
+
+const getimagesPerFrameValue = (sliderInstance) => {
+  return sliderInstance.getAttribute("display");
+}
 
 const addArrowsToDOM = (sliderInstance) => {
   sliderInstance.innerHTML += `<div class="arrow-wrapper"><span id="arrowLeft" class="arrow"><</span><span id="arrowRight" class="arrow">></span></div>`;
@@ -113,13 +119,11 @@ const setWidthOfChildren = (children, width) => {
   for (let child of children) {
     if (child.className === "arrow-wrapper") continue;
     child.style.maxWidth = `${width}px`;
+    child.style.minWidth = `${width}px`;
     child.style.flex = `0 1 ${width}px`;
   }
 };
 
-const getImageWidth = (sliderInstance) => {
-  return sliderInstance.getAttribute("imgwidth");
-};
 
 const countNumberOfImagesInSlider = (images) => {
   return images.length;
@@ -141,7 +145,10 @@ const sliderInstance = getSliderReferenceById("slider");
 
 if (sliderInstance !== null) {
   console.log("Load slider..");
-  initSliderLogic(sliderInstance);
+  initSliderLogic(sliderInstance, false);
+  window.onresize = () => { initSliderLogic(sliderInstance, true) };
 } else {
   console.log("Could not load slider..");
 }
+
+
