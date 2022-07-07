@@ -9,6 +9,7 @@ let widthOfSlider;
 let widthOfImage;
 let lastClickedArrow;
 let rightBtnClicks = 0;
+let lastKnownSliderWidth;
 var last = 0;
 const initSliderLogic = (sliderInstance, isResizeEvent) => {
   if(sliderInstance === null) {
@@ -16,14 +17,14 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
   } 
   console.log("running init");
   imagesInSlider = getImagesInSlider(sliderInstance);
-  numberOfImagesInSlider = countNumberOfImagesInSlider(imagesInSlider);
   widthOfSlider = getWidthOfSlider(sliderInstance);
   imagesPerFrame = getimagesPerFrameValue(sliderInstance);
   widthOfImage = widthOfSlider / imagesPerFrame;
   setWidthOfChildren(imagesInSlider, widthOfImage);
-  rightQue = numberOfImagesInSlider - imagesPerFrame;
   onDisplay = imagesPerFrame;
   if(!isResizeEvent) {
+    numberOfImagesInSlider = countNumberOfImagesInSlider(imagesInSlider);
+    rightQue = numberOfImagesInSlider - imagesPerFrame;
     if (numberOfImagesInSlider > imagesPerFrame) {
       addArrowsToDOM(sliderInstance);
       showArrow(getArrowById("arrowRight"));
@@ -31,6 +32,10 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
       addLeftClickAction(getArrowById("arrowRight"), getArrowById("arrowLeft"));
     }
   }
+  if(isResizeEvent) {
+    resetImagesAfterResizeEvent();
+  }
+  lastKnownSliderWidth = widthOfSlider;
   console.log(
     numberOfImagesInSlider,
     widthOfSlider,
@@ -40,6 +45,17 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
     rightQue
   );
 };
+
+const resetImagesAfterResizeEvent = () => {
+  for (let v = 0; v < numberOfImagesInSlider; v++) {
+    rightQue = numberOfImagesInSlider - imagesPerFrame;
+    leftQue = 0;
+    last = 0;
+    imagesInSlider[v].style.transform = `translateX(0px)`;
+    showArrow(getArrowById("arrowRight"));
+    hideArrow(getArrowById("arrowLeft"))
+  }
+}
 
 const addLeftClickAction = (rightArrow, leftArrow) => {
   leftArrow.addEventListener("click", () => {
