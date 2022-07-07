@@ -11,6 +11,7 @@ let lastClickedArrow;
 let rightBtnClicks = 0;
 let lastKnownSliderWidth;
 var last = 0;
+var autoRotateId;
 const initSliderLogic = (sliderInstance, isResizeEvent) => {
   if(sliderInstance === null) {
     sliderInstance = getSliderReferenceById("slider");
@@ -25,11 +26,15 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
   if(!isResizeEvent) {
     numberOfImagesInSlider = countNumberOfImagesInSlider(imagesInSlider);
     rightQue = numberOfImagesInSlider - imagesPerFrame;
+    const speed = getAutoRotateSpeed(sliderInstance);
     if (numberOfImagesInSlider > imagesPerFrame) {
       addArrowsToDOM(sliderInstance);
       showArrow(getArrowById("arrowRight"));
       addRightClickAction(getArrowById("arrowRight"), getArrowById("arrowLeft"));
       addLeftClickAction(getArrowById("arrowRight"), getArrowById("arrowLeft"));
+      if(speed !== null) {
+        autoRotateId = setUpAutoRotate(speed, Math.floor(imagesInSlider.length/imagesPerFrame), getArrowById("arrowLeft"), getArrowById("arrowRight"));
+      }
     }
   }
   if(isResizeEvent) {
@@ -46,6 +51,32 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
   );
 };
 
+const setUpAutoRotate = (rotateSpeed, steps, leftArrow, rightArrow) => {
+  let step = 0;
+  let moveRight = true;
+  return setInterval(() => {
+    if(step < steps - 1) {
+      if(moveRight) {
+        shiftLeft(rightArrow, leftArrow);
+        step++;
+      }
+      else {
+        shiftRight(rightArrow, leftArrow);
+        step++;
+      }
+    }
+    else {
+      step = 0;
+      moveRight = !moveRight;
+    }
+    
+  }, rotateSpeed);
+}
+
+const removeAutoRotate = (id) => {
+  clearInterval(id);
+}
+
 const resetImagesAfterResizeEvent = () => {
   for (let v = 0; v < numberOfImagesInSlider; v++) {
     rightQue = numberOfImagesInSlider - imagesPerFrame;
@@ -59,8 +90,19 @@ const resetImagesAfterResizeEvent = () => {
 
 const addLeftClickAction = (rightArrow, leftArrow) => {
   leftArrow.addEventListener("click", () => {
-    if (lastClickedArrow === "right") position--;
-    if (position === -1) position = 0;
+    removeAutoRotate(autoRotateId);
+    shiftRight(rightArrow, leftArrow);
+  });
+};
+
+const addRightClickAction = (rightArrow, leftArrow) => {
+  rightArrow.addEventListener("click", () => {
+    removeAutoRotate(autoRotateId);
+    shiftLeft(rightArrow, leftArrow);
+  });
+};
+
+const shiftRight = (rightArrow, leftArrow) => {
     console.log("click");
     for (let i = 0; i < imagesPerFrame && leftQue > 0; i++) {
       rightQue++;
@@ -73,21 +115,14 @@ const addLeftClickAction = (rightArrow, leftArrow) => {
         imagesInSlider[v].style.transform = test;
         console.log("Moving item:" + v + "," + test);
       }    
-      position++;
     }
     console.log("RighQue:" + rightQue, "LeftQue:" + leftQue);
     if (rightQue > 0) showArrow(rightArrow);
     if (leftQue <= 0) hideArrow(leftArrow);
-    lastClickedArrow = "right";
-    rightBtnClicks++;
     last = value;
-  });
-};
+}
 
-const addRightClickAction = (rightArrow, leftArrow) => {
-  rightArrow.addEventListener("click", () => {
-    if (lastClickedArrow === "left") position = position++;
-    if (position === -1) position = 0;
+const shiftLeft = (rightArrow, leftArrow) => {
     console.log("click");
     for (let i = 0; i < imagesPerFrame && rightQue > 0; i++) {
       rightQue--;
@@ -100,19 +135,19 @@ const addRightClickAction = (rightArrow, leftArrow) => {
         imagesInSlider[v].style.transform = test;
         console.log("Moving item:" + v + "," + test);
       }    
-      position++;
     }
     console.log("RighQue:" + rightQue, "LeftQue:" + leftQue);
-    if (rightQue <= 0) hideArrow(getArrowById("arrowRight"));
+    if (rightQue <= 0) hideArrow(rightArrow);
     if (leftQue > 0) showArrow(leftArrow);
-    lastClickedArrow = "right";
-    rightBtnClicks++;
     last = value;
-  });
-};
+}
 
 const getimagesPerFrameValue = (sliderInstance) => {
   return sliderInstance.getAttribute("display");
+}
+
+const getAutoRotateSpeed = (sliderInstance) => {
+  return sliderInstance.getAttribute("auto");
 }
 
 const addArrowsToDOM = (sliderInstance) => {
