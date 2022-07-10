@@ -10,8 +10,10 @@ let widthOfImage;
 let lastClickedArrow;
 let rightBtnClicks = 0;
 let lastKnownSliderWidth;
-var last = 0;
-var autoRotateId;
+let last = 0;
+let autoRotateId;
+let mouseDownPosition;
+let mouseUpPosition;
 const initSliderLogic = (sliderInstance, isResizeEvent) => {
   if(sliderInstance === null) {
     sliderInstance = getSliderReferenceById("slider");
@@ -35,6 +37,7 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
       if(speed !== null) {
         autoRotateId = setUpAutoRotate(speed, Math.floor(imagesInSlider.length/imagesPerFrame), getArrowById("arrowLeft"), getArrowById("arrowRight"));
       }
+       setUpDaD(sliderInstance, getArrowById("arrowLeft"), getArrowById("arrowRight"));
     }
   }
   if(isResizeEvent) {
@@ -57,10 +60,12 @@ const setUpAutoRotate = (rotateSpeed, steps, leftArrow, rightArrow) => {
   return setInterval(() => {
     if(step < steps - 1) {
       if(moveRight) {
+        removeAutoRotate(autoRotateId);
         shiftLeft(rightArrow, leftArrow);
         step++;
       }
       else {
+        removeAutoRotate(autoRotateId);
         shiftRight(rightArrow, leftArrow);
         step++;
       }
@@ -72,6 +77,31 @@ const setUpAutoRotate = (rotateSpeed, steps, leftArrow, rightArrow) => {
     
   }, rotateSpeed);
 }
+
+const setUpDaD = (sliderInstance, leftArrow, rightArrow) => {
+  sliderInstance.onmousedown = (event) => {
+    sliderInstance.style.cursor = "grabbing";
+    event.stopPropagation();
+    mouseDownPosition = event.clientX;
+    console.log("Mouse down:" + event.clientX);
+    return false;
+  };
+  sliderInstance.onmouseup = (event) => {
+    sliderInstance.style.cursor = "grab";
+    event.stopPropagation();
+    mouseUpPosition = event.clientX;
+    console.log("Mouse up:" + event.clientX);
+    if(mouseUpPosition < mouseDownPosition && rightQue > 0) {
+      shiftLeft(rightArrow, leftArrow)
+    }
+    if(mouseUpPosition > mouseDownPosition && leftQue > 0){
+      shiftRight(rightArrow, leftArrow);
+    }
+    return false;
+  };
+}
+
+
 
 const removeAutoRotate = (id) => {
   clearInterval(id);
@@ -108,6 +138,7 @@ const shiftRight = (rightArrow, leftArrow) => {
       rightQue++;
       leftQue--;
       for (let v = 0; v < numberOfImagesInSlider; v++) {
+        if(isNaN(last)) last = 0;
         if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
         const tst = i === 0 ? 1 : i + 1;
         var value = Math.abs((widthOfImage * tst) - last);
@@ -128,6 +159,7 @@ const shiftLeft = (rightArrow, leftArrow) => {
       rightQue--;
       leftQue++;
       for (let v = 0; v < numberOfImagesInSlider; v++) {
+        if(isNaN(last)) last = 0;
         if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
         const tst = i === 0 ? 1 : i + 1;
         var value = widthOfImage * tst + last;
