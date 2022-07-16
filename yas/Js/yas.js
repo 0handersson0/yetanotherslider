@@ -1,25 +1,24 @@
-let position = 0;
 let rightQue = 0;
 let leftQue = 0;
-let onDisplay = 0;
 let imagesPerFrame;
 let imagesInSlider;
 let numberOfImagesInSlider;
 let widthOfSlider;
 let widthOfImage;
-let lastClickedArrow;
-let rightBtnClicks = 0;
-let lastKnownSliderWidth;
-let last = 0;
+let lastTransformValue = 0;
 let autoRotateId;
 let mouseDownPosition;
 let mouseUpPosition;
 let widthOfArrowWrapper;
+const arrowWrapper = "arrowWrapper";
+const arrowRight = "arrowRight";
+const arrowLeft = "arrowLeft";
+const slider = "slider";
+
 const initSliderLogic = (sliderInstance, isResizeEvent) => {
   if(sliderInstance === null) {
-    sliderInstance = getSliderReferenceById("slider");
+    sliderInstance = getSliderReferenceById(slider);
   } 
-  console.log("running init");
   imagesInSlider = getImagesInSlider(sliderInstance);
   widthOfSlider = getWidthOfSlider(sliderInstance);
   imagesPerFrame = getimagesPerFrameValue(sliderInstance);
@@ -32,32 +31,23 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
     const speed = getAutoRotateSpeed(sliderInstance);
     if (numberOfImagesInSlider > imagesPerFrame) {
       addArrowsToDOM(sliderInstance);
-      widthOfArrowWrapper = getWidthOfArrowWrapper(getArrowWrapperById("arrowWrapper"));
-      setArrowPosition(getArrowWrapperById("arrowWrapper"), getArrowPosition(sliderInstance), widthOfSlider, widthOfArrowWrapper);
-      showArrow(getArrowById("arrowRight"));
-      addRightClickAction(getArrowById("arrowRight"), getArrowById("arrowLeft"));
-      addLeftClickAction(getArrowById("arrowRight"), getArrowById("arrowLeft"));
+      widthOfArrowWrapper = getWidthOfArrowWrapper(getArrowWrapperById(arrowWrapper));
+      setArrowPosition(getArrowWrapperById(arrowWrapper), getArrowPosition(sliderInstance), widthOfSlider, widthOfArrowWrapper);
+      showArrow(getArrowById(arrowRight));
+      addRightClickAction(getArrowById(arrowRight), getArrowById(arrowLeft));
+      addLeftClickAction(getArrowById(arrowRight), getArrowById(arrowLeft));
       if(speed !== null) {
-        autoRotateId = setUpAutoRotate(speed, Math.floor(imagesInSlider.length/imagesPerFrame), getArrowById("arrowLeft"), getArrowById("arrowRight"));
+        autoRotateId = setUpAutoRotate(speed, Math.floor(imagesInSlider.length/imagesPerFrame), getArrowById(arrowLeft), getArrowById(arrowRight));
       }
-       setUpDaD(sliderInstance, getArrowById("arrowLeft"), getArrowById("arrowRight"));
+       setUpDaD(sliderInstance, getArrowById(arrowLeft), getArrowById(arrowRight));
     }
   }
   if(isResizeEvent) {
     resetImagesAfterResizeEvent();
     if (numberOfImagesInSlider > imagesPerFrame) {
-      setArrowPosition(getArrowWrapperById("arrowWrapper"), getArrowPosition(sliderInstance), widthOfSlider, widthOfArrowWrapper);
+      setArrowPosition(getArrowWrapperById(arrowWrapper), getArrowPosition(sliderInstance), widthOfSlider, widthOfArrowWrapper);
     }
   }
-  lastKnownSliderWidth = widthOfSlider;
-  console.log(
-    numberOfImagesInSlider,
-    widthOfSlider,
-    widthOfImage,
-    imagesInSlider,
-    imagesPerFrame,
-    rightQue
-  );
 };
 
 const setArrowPosition = (arrowWrapper, position, widthOfSlider, widthOfWrapper ) => {
@@ -120,14 +110,12 @@ const setUpDaD = (sliderInstance, leftArrow, rightArrow) => {
     sliderInstance.style.cursor = "grabbing";
     event.stopPropagation();
     mouseDownPosition = event.clientX;
-    console.log("Mouse down:" + event.clientX);
     return false;
   };
   sliderInstance.onmouseup = (event) => {
     sliderInstance.style.cursor = "grab";
     event.stopPropagation();
     mouseUpPosition = event.clientX;
-    console.log("Mouse up:" + event.clientX);
     if(mouseUpPosition < mouseDownPosition && rightQue > 0) {
       removeAutoRotate(autoRotateId);
       shiftLeft(rightArrow, leftArrow)
@@ -141,7 +129,7 @@ const setUpDaD = (sliderInstance, leftArrow, rightArrow) => {
 }
 
 const rotateEvent = () => {
-  setArrowPosition(getArrowWrapperById("arrowWrapper"), getArrowPosition(sliderInstance), widthOfSlider, getWidthOfArrowWrapper(getArrowWrapperById("arrowWrapper")));
+  setArrowPosition(getArrowWrapperById(arrowWrapper), getArrowPosition(sliderInstance), widthOfSlider, getWidthOfArrowWrapper(getArrowWrapperById(arrowWrapper)));
 }
 
 const removeAutoRotate = (id) => {
@@ -152,10 +140,10 @@ const resetImagesAfterResizeEvent = () => {
   for (let v = 0; v < numberOfImagesInSlider; v++) {
     rightQue = numberOfImagesInSlider - imagesPerFrame;
     leftQue = 0;
-    last = 0;
+    lastTransformValue = 0;
     imagesInSlider[v].style.transform = `translateX(0px)`;
-    showArrow(getArrowById("arrowRight"));
-    hideArrow(getArrowById("arrowLeft"))
+    showArrow(getArrowById(arrowRight));
+    hideArrow(getArrowById(arrowLeft))
   }
 }
 
@@ -174,48 +162,43 @@ const addRightClickAction = (rightArrow, leftArrow) => {
 };
 
 const shiftRight = (rightArrow, leftArrow) => {
-    console.log("click");
-    for (let i = 0; i < imagesPerFrame && leftQue > 0; i++) {
+  let transformValue;  
+  for (let i = 0; i < imagesPerFrame && leftQue > 0; i++) {
       rightQue++;
       leftQue--;
       for (let v = 0; v < numberOfImagesInSlider; v++) {
-        if(isNaN(last)) last = 0;
+        if(isNaN(lastTransformValue)) lastTransformValue = 0;
         if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
         const tst = i === 0 ? 1 : i + 1;
-        var value = Math.abs((widthOfImage * tst) - last);
-        var test = `translateX(-${value}px)`;
-        imagesInSlider[v].style.transform = test;
-        console.log("Moving item:" + v + "," + test);
+        transformValue = Math.abs((widthOfImage * tst) - lastTransformValue);
+        imagesInSlider[v].style.transform = `translateX(-${transformValue}px)`;
       }    
     }
-    console.log("RighQue:" + rightQue, "LeftQue:" + leftQue);
     if (rightQue > 0) showArrow(rightArrow);
     if (leftQue <= 0) hideArrow(leftArrow);
-    last = value;
+    lastTransformValue = transformValue;
     rotateEvent();
 }
 
 const shiftLeft = (rightArrow, leftArrow) => {
-    console.log("click");
-    for (let i = 0; i < imagesPerFrame && rightQue > 0; i++) {
+  let transformValue;  
+  for (let i = 0; i < imagesPerFrame && rightQue > 0; i++) {
       rightQue--;
       leftQue++;
       for (let v = 0; v < numberOfImagesInSlider; v++) {
-        if(isNaN(last)) last = 0;
+        if(isNaN(lastTransformValue)) lastTransformValue = 0;
         if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
         const tst = i === 0 ? 1 : i + 1;
-        var value = widthOfImage * tst + last;
-        var test = `translateX(-${value}px)`;
-        imagesInSlider[v].style.transform = test;
-        console.log("Moving item:" + v + "," + test);
+        transformValue = widthOfImage * tst + lastTransformValue;
+        imagesInSlider[v].style.transform = `translateX(-${transformValue}px)`;
       }    
     }
-    console.log("RighQue:" + rightQue, "LeftQue:" + leftQue);
     if (rightQue <= 0) hideArrow(rightArrow);
     if (leftQue > 0) showArrow(leftArrow);
-    last = value;
+    lastTransformValue = transformValue;
     rotateEvent();
 }
+
 
 const getimagesPerFrameValue = (sliderInstance) => {
   return sliderInstance.getAttribute("display");
@@ -226,7 +209,7 @@ const getAutoRotateSpeed = (sliderInstance) => {
 }
 
 const addArrowsToDOM = (sliderInstance) => {
-  sliderInstance.innerHTML += `<div id="arrowWrapper" class="arrow-wrapper"><svg id="arrowLeft" class="arrow" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M20 .755l-14.374 11.245 14.374 11.219-.619.781-15.381-12 15.391-12 .609.755z"/></svg><svg id="arrowRight" class="arrow" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M4 .755l14.374 11.245-14.374 11.219.619.781 15.381-12-15.391-12-.609.755z"/></svg></div>`;
+  sliderInstance.innerHTML += `<div id="${arrowWrapper}" class="arrow-wrapper"><svg id="${arrowLeft}" class="arrow" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M20 .755l-14.374 11.245 14.374 11.219-.619.781-15.381-12 15.391-12 .609.755z"/></svg><svg id="${arrowRight}" class="arrow" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M4 .755l14.374 11.245-14.374 11.219.619.781 15.381-12-15.391-12-.609.755z"/></svg></div>`;
 };
 
 const showArrow = (arrowRef) => {
@@ -283,14 +266,13 @@ const getSliderReferenceById = (sliderId) => {
   return document.getElementById(sliderId);
 };
 
-const sliderInstance = getSliderReferenceById("slider");
+const sliderInstance = getSliderReferenceById(slider);
 
 if (sliderInstance !== null) {
-  console.log("Load slider..");
   initSliderLogic(sliderInstance, false);
   window.onresize = () => { initSliderLogic(sliderInstance, true) };
 } else {
-  console.log("Could not load slider..");
+  console.error("Could not load slider...");
 }
 
 
