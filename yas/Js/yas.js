@@ -1,51 +1,49 @@
-let rightQue = 0;
-let leftQue = 0;
-let imagesPerFrame;
-let imagesInSlider;
-let numberOfImagesInSlider;
-let widthOfSlider;
-let widthOfImage;
-let lastTransformValue = 0;
-let autoRotateId;
 let mouseDownPosition;
 let mouseUpPosition;
-let widthOfArrowWrapper;
+const sliderHelpValuesArray = [];
 const arrowWrapper = "arrowWrapper";
 const arrowRight = "arrowRight";
 const arrowLeft = "arrowLeft";
 const slider = "slider";
 
 const initSliderLogic = (sliderInstance, isResizeEvent) => {
-  if(sliderInstance === null) {
-    sliderInstance = getSliderReferenceById(slider);
-  } 
-  imagesInSlider = getImagesInSlider(sliderInstance);
-  widthOfSlider = getWidthOfSlider(sliderInstance);
-  imagesPerFrame = getimagesPerFrameValue(sliderInstance);
-  widthOfImage = widthOfSlider / imagesPerFrame;
-  setWidthOfChildren(imagesInSlider, widthOfImage);
-  onDisplay = imagesPerFrame;
+  let sliderHelperValue = sliderHelpValuesArray.find(x => x.id === sliderInstance.id);
+  if(sliderHelperValue === undefined) {
+    sliderHelperValue = {};
+    sliderHelperValue.sliderInstance = sliderInstance; 
+    sliderHelperValue.id = sliderInstance.id;
+    sliderHelperValue.lastTransformValue = 0;
+    sliderHelperValue.step = 0;
+    sliderHelperValue.leftQue = 0;
+    sliderHelperValue.moveRight = true;
+    sliderHelpValuesArray.push(sliderHelperValue);
+  }
+  sliderHelperValue.imagesInSlider = getImagesInSlider(sliderHelperValue.sliderInstance);
+  sliderHelperValue.widthOfSlider = getWidthOfSlider(sliderHelperValue.sliderInstance);
+  sliderHelperValue.imagesPerFrame = getimagesPerFrameValue(sliderHelperValue.sliderInstance);
+  sliderHelperValue.widthOfImage = sliderHelperValue.widthOfSlider / sliderHelperValue.imagesPerFrame;
+  setWidthOfChildren(sliderHelperValue.imagesInSlider, sliderHelperValue.widthOfImage);
   if(!isResizeEvent) {
-    numberOfImagesInSlider = countNumberOfImagesInSlider(imagesInSlider);
-    rightQue = numberOfImagesInSlider - imagesPerFrame;
-    const speed = getAutoRotateSpeed(sliderInstance);
-    if (numberOfImagesInSlider > imagesPerFrame) {
-      addArrowsToDOM(sliderInstance);
-      widthOfArrowWrapper = getWidthOfArrowWrapper(getArrowWrapperById(arrowWrapper));
-      setArrowPosition(getArrowWrapperById(arrowWrapper), getArrowPosition(sliderInstance), widthOfSlider, widthOfArrowWrapper);
-      showArrow(getArrowById(arrowRight));
-      addRightClickAction(getArrowById(arrowRight), getArrowById(arrowLeft));
-      addLeftClickAction(getArrowById(arrowRight), getArrowById(arrowLeft));
-      if(speed !== null) {
-        autoRotateId = setUpAutoRotate(speed, Math.floor(imagesInSlider.length/imagesPerFrame), getArrowById(arrowLeft), getArrowById(arrowRight));
+    sliderHelperValue.numberOfImagesInSlider = countNumberOfImagesInSlider(sliderHelperValue.imagesInSlider);
+    sliderHelperValue.rightQue = sliderHelperValue.numberOfImagesInSlider - sliderHelperValue.imagesPerFrame;
+    sliderHelperValue.speed = getAutoRotateSpeed(sliderHelperValue.sliderInstance);
+    if (sliderHelperValue.numberOfImagesInSlider > sliderHelperValue.imagesPerFrame) {
+      addArrowsToDOM(sliderHelperValue.sliderInstance, sliderHelperValue.id);
+      sliderHelperValue.widthOfArrowWrapper = getWidthOfArrowWrapper(getArrowWrapperById(`${arrowWrapper}${sliderHelperValue.id}`));
+      setArrowPosition(getArrowWrapperById(`${arrowWrapper}${sliderHelperValue.id}`), getArrowPosition(sliderHelperValue.sliderInstance), sliderHelperValue.widthOfSlider, sliderHelperValue.widthOfArrowWrapper);
+      showArrow(getArrowById(`${arrowRight}${sliderHelperValue.id}`));
+      addRightClickAction(getArrowById(`${arrowRight}${sliderHelperValue.id}`), getArrowById(`${arrowLeft}${sliderHelperValue.id}`), sliderInstance.id);
+      addLeftClickAction(getArrowById(`${arrowRight}${sliderHelperValue.id}`), getArrowById(`${arrowLeft}${sliderHelperValue.id}`), sliderInstance.id);
+      if(sliderHelperValue.speed !== null) {
+        sliderHelperValue.autoRotateId = setUpAutoRotate(sliderHelperValue.speed, Math.floor(sliderHelperValue.imagesInSlider.length/sliderHelperValue.imagesPerFrame), getArrowById(`${arrowLeft}${sliderHelperValue.id}`), getArrowById(`${arrowRight}${sliderHelperValue.id}`), sliderHelperValue.id);
       }
-       setUpDaD(sliderInstance, getArrowById(arrowLeft), getArrowById(arrowRight));
+       setUpDaD(sliderHelperValue.sliderInstance, getArrowById(`${arrowLeft}${sliderHelperValue.id}`), getArrowById(`${arrowRight}${sliderHelperValue.id}`), sliderHelperValue.id);
     }
   }
   if(isResizeEvent) {
     resetImagesAfterResizeEvent();
-    if (numberOfImagesInSlider > imagesPerFrame) {
-      setArrowPosition(getArrowWrapperById(arrowWrapper), getArrowPosition(sliderInstance), widthOfSlider, widthOfArrowWrapper);
+    if (sliderHelperValue.numberOfImagesInSlider > sliderHelperValue.imagesPerFrame) {
+      setArrowPosition(getArrowWrapperById(`${arrowWrapper}${sliderHelperValue.id}`), getArrowPosition(sliderHelperValue.sliderInstance), sliderHelperValue.widthOfSlider, sliderHelperValue.widthOfArrowWrapper);
     }
   }
 };
@@ -83,29 +81,29 @@ const setArrowPosition = (arrowWrapper, position, widthOfSlider, widthOfWrapper 
     }
 }
 
-const setUpAutoRotate = (rotateSpeed, steps, leftArrow, rightArrow) => {
-  let step = 0;
-  let moveRight = true;
+const setUpAutoRotate = (rotateSpeed, steps, leftArrow, rightArrow, sliderId) => {
   return setInterval(() => {
+    const sliderHelperValues = getSliderHelperValuesById(sliderId);
+    const {step, moveRight} = sliderHelperValues;
     if(step < steps - 1) {
       if(moveRight) {
-        shiftLeft(rightArrow, leftArrow);
-        step++;
+        shiftLeft(rightArrow, leftArrow, sliderId);
+        sliderHelperValues.step++;
       }
       else {
-        shiftRight(rightArrow, leftArrow);
-        step++;
+        shiftRight(rightArrow, leftArrow, sliderId);
+        sliderHelperValues.step++;
       }
     }
     else {
-      step = 0;
-      moveRight = !moveRight;
+      sliderHelperValues.step = 0;
+      sliderHelperValues.moveRight = !moveRight;
     }
     
   }, rotateSpeed);
 }
 
-const setUpDaD = (sliderInstance, leftArrow, rightArrow) => {
+const setUpDaD = (sliderInstance, leftArrow, rightArrow, sliderId) => {
   sliderInstance.onmousedown = (event) => {
     sliderInstance.style.cursor = "grabbing";
     event.stopPropagation();
@@ -113,23 +111,25 @@ const setUpDaD = (sliderInstance, leftArrow, rightArrow) => {
     return false;
   };
   sliderInstance.onmouseup = (event) => {
+    const { autoRotateId, rightQue, leftQue } = getSliderHelperValuesById(sliderId);
     sliderInstance.style.cursor = "grab";
     event.stopPropagation();
     mouseUpPosition = event.clientX;
     if(mouseUpPosition < mouseDownPosition && rightQue > 0) {
       removeAutoRotate(autoRotateId);
-      shiftLeft(rightArrow, leftArrow)
+      shiftLeft(rightArrow, leftArrow, sliderId)
     }
     if(mouseUpPosition > mouseDownPosition && leftQue > 0){
       removeAutoRotate(autoRotateId);
-      shiftRight(rightArrow, leftArrow);
+      shiftRight(rightArrow, leftArrow, sliderId);
     }
     return false;
   };
 }
 
-const rotateEvent = () => {
-  setArrowPosition(getArrowWrapperById(arrowWrapper), getArrowPosition(sliderInstance), widthOfSlider, getWidthOfArrowWrapper(getArrowWrapperById(arrowWrapper)));
+const rotateEvent = (sliderId) => {
+  const { sliderInstance, widthOfSlider } = getSliderHelperValuesById(sliderId);
+  setArrowPosition(getArrowWrapperById(`${arrowWrapper}${sliderId}`), getArrowPosition(sliderInstance), widthOfSlider, getWidthOfArrowWrapper(getArrowWrapperById(`${arrowWrapper}${sliderId}`)));
 }
 
 const removeAutoRotate = (id) => {
@@ -137,35 +137,42 @@ const removeAutoRotate = (id) => {
 }
 
 const resetImagesAfterResizeEvent = () => {
-  for (let v = 0; v < numberOfImagesInSlider; v++) {
-    rightQue = numberOfImagesInSlider - imagesPerFrame;
-    leftQue = 0;
-    lastTransformValue = 0;
-    imagesInSlider[v].style.transform = `translateX(0px)`;
-    showArrow(getArrowById(arrowRight));
-    hideArrow(getArrowById(arrowLeft))
+  for(let i = 0; i < sliderHelpValuesArray.length; i++) {
+    let {id, numberOfImagesInSlider, imagesPerFrame, leftQue, rightQue, lastTransformValue} = sliderHelpValuesArray[i];
+    for (let v = 0; v < numberOfImagesInSlider; v++) {
+      rightQue = numberOfImagesInSlider - imagesPerFrame;
+      leftQue = 0;
+      lastTransformValue = 0;
+      imagesInSlider[v].style.transform = `translateX(0px)`;
+      showArrow(getArrowById(`${arrowRight}${id}`));
+      hideArrow(getArrowById(`${arrowLeft}${id}`))
+    }
   }
 }
 
-const addLeftClickAction = (rightArrow, leftArrow) => {
+const addLeftClickAction = (rightArrow, leftArrow, sliderId) => {
   leftArrow.addEventListener("click", () => {
+    const {autoRotateId} = getSliderHelperValuesById(sliderId);
     removeAutoRotate(autoRotateId);
-    shiftRight(rightArrow, leftArrow);
+    shiftRight(rightArrow, leftArrow, sliderId);
   });
 };
 
-const addRightClickAction = (rightArrow, leftArrow) => {
+const addRightClickAction = (rightArrow, leftArrow, sliderId) => {
   rightArrow.addEventListener("click", () => {
+    const {autoRotateId} = getSliderHelperValuesById(sliderId);
     removeAutoRotate(autoRotateId);
-    shiftLeft(rightArrow, leftArrow);
+    shiftLeft(rightArrow, leftArrow, sliderId);
   });
 };
 
-const shiftRight = (rightArrow, leftArrow) => {
+const shiftRight = (rightArrow, leftArrow, sliderId) => {
+  let sliderHelperValue = getSliderHelperValuesById(sliderId);
+  const {numberOfImagesInSlider, widthOfImage, imagesPerFrame, lastTransformValue, imagesInSlider, leftQue, rightQue, id} = sliderHelperValue;
   let transformValue;  
-  for (let i = 0; i < imagesPerFrame && leftQue > 0; i++) {
-      rightQue++;
-      leftQue--;
+  for (let i = 0; i < imagesPerFrame && sliderHelperValue.leftQue > 0; i++) {
+    sliderHelperValue.rightQue++;
+    sliderHelperValue.leftQue--;
       for (let v = 0; v < numberOfImagesInSlider; v++) {
         if(isNaN(lastTransformValue)) lastTransformValue = 0;
         if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
@@ -174,17 +181,19 @@ const shiftRight = (rightArrow, leftArrow) => {
         imagesInSlider[v].style.transform = `translateX(-${transformValue}px)`;
       }    
     }
-    if (rightQue > 0) showArrow(rightArrow);
-    if (leftQue <= 0) hideArrow(leftArrow);
-    lastTransformValue = transformValue;
-    rotateEvent();
+    if (sliderHelperValue.rightQue > 0) showArrow(rightArrow);
+    if (sliderHelperValue.leftQue <= 0) hideArrow(leftArrow);
+    sliderHelperValue.lastTransformValue = transformValue;
+    rotateEvent(id);
 }
 
-const shiftLeft = (rightArrow, leftArrow) => {
+const shiftLeft = (rightArrow, leftArrow, sliderId) => {
+  let sliderHelperValue = getSliderHelperValuesById(sliderId);
+  const {numberOfImagesInSlider, widthOfImage, imagesPerFrame, lastTransformValue, imagesInSlider, leftQue, rightQue, id} = sliderHelperValue;
   let transformValue;  
-  for (let i = 0; i < imagesPerFrame && rightQue > 0; i++) {
-      rightQue--;
-      leftQue++;
+  for (let i = 0; i < imagesPerFrame && sliderHelperValue.rightQue > 0; i++) {
+    sliderHelperValue.rightQue--;
+    sliderHelperValue.leftQue++;
       for (let v = 0; v < numberOfImagesInSlider; v++) {
         if(isNaN(lastTransformValue)) lastTransformValue = 0;
         if (imagesInSlider[v]?.className === "arrow-wrapper") continue;
@@ -193,12 +202,15 @@ const shiftLeft = (rightArrow, leftArrow) => {
         imagesInSlider[v].style.transform = `translateX(-${transformValue}px)`;
       }    
     }
-    if (rightQue <= 0) hideArrow(rightArrow);
-    if (leftQue > 0) showArrow(leftArrow);
-    lastTransformValue = transformValue;
-    rotateEvent();
+    if (sliderHelperValue.rightQue <= 0) hideArrow(rightArrow);
+    if (sliderHelperValue.leftQue > 0) showArrow(leftArrow);
+    sliderHelperValue.lastTransformValue = transformValue;
+    rotateEvent(id);
 }
 
+const getSliderHelperValuesById = (id) => {
+  return sliderHelpValuesArray.find(x => x.id === id);
+}
 
 const getimagesPerFrameValue = (sliderInstance) => {
   return sliderInstance.getAttribute("display");
@@ -208,8 +220,8 @@ const getAutoRotateSpeed = (sliderInstance) => {
   return sliderInstance.getAttribute("auto");
 }
 
-const addArrowsToDOM = (sliderInstance) => {
-  sliderInstance.innerHTML += `<div id="${arrowWrapper}" class="arrow-wrapper"><svg id="${arrowLeft}" class="arrow" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M20 .755l-14.374 11.245 14.374 11.219-.619.781-15.381-12 15.391-12 .609.755z"/></svg><svg id="${arrowRight}" class="arrow" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M4 .755l14.374 11.245-14.374 11.219.619.781 15.381-12-15.391-12-.609.755z"/></svg></div>`;
+const addArrowsToDOM = (sliderInstance, id) => {
+  sliderInstance.innerHTML += `<div id="${arrowWrapper}${id}" class="arrow-wrapper"><svg id="${arrowLeft}${id}" class="arrow" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M20 .755l-14.374 11.245 14.374 11.219-.619.781-15.381-12 15.391-12 .609.755z"/></svg><svg id="${arrowRight}${id}" class="arrow" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M4 .755l14.374 11.245-14.374 11.219.619.781 15.381-12-15.391-12-.609.755z"/></svg></div>`;
 };
 
 const showArrow = (arrowRef) => {
@@ -262,15 +274,29 @@ const getWidthOfElement = (element) => {
   return element?.clientWidth;
 }
 
+const getSliderReferencesByClassName = (sliderClassname) => {
+  return document.getElementsByClassName(sliderClassname);
+}
+
 const getSliderReferenceById = (sliderId) => {
   return document.getElementById(sliderId);
 };
 
-const sliderInstance = getSliderReferenceById(slider);
+// const sliderInstance = getSliderReferenceById(slider);
 
-if (sliderInstance !== null) {
-  initSliderLogic(sliderInstance, false);
-  window.onresize = () => { initSliderLogic(sliderInstance, true) };
+const sliderInstances = getSliderReferencesByClassName(slider);
+
+if (sliderInstances !== null) {
+  for(sliderInstance of sliderInstances) {
+    initSliderLogic(sliderInstance, false);
+  };
+  // initSliderLogic(sliderInstance, false);
+  // window.onresize = () => { initSliderLogic(sliderInstance, true) };
+  window.onresize = () => { 
+    for(sliderInstance of sliderInstances) {
+      initSliderLogic(sliderInstance, true);
+    }; 
+  };
 } else {
   console.error("Could not load slider...");
 }
