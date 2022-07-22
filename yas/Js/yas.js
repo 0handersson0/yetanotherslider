@@ -138,12 +138,13 @@ const removeAutoRotate = (id) => {
 
 const resetImagesAfterResizeEvent = () => {
   for(let i = 0; i < sliderHelpValuesArray.length; i++) {
-    let {id, numberOfImagesInSlider, imagesPerFrame, leftQue, rightQue, lastTransformValue} = sliderHelpValuesArray[i];
+    const sliderValues = sliderHelpValuesArray[i];
+    const {id, numberOfImagesInSlider, imagesPerFrame} = sliderValues;
     for (let v = 0; v < numberOfImagesInSlider; v++) {
-      rightQue = numberOfImagesInSlider - imagesPerFrame;
-      leftQue = 0;
-      lastTransformValue = 0;
-      imagesInSlider[v].style.transform = `translateX(0px)`;
+      sliderValues.rightQue = numberOfImagesInSlider - imagesPerFrame;
+      sliderValues.leftQue = 0;
+      sliderValues.lastTransformValue = 0;
+      sliderValues.imagesInSlider[v].style.transform = `translateX(0px)`;
       showArrow(getArrowById(`${arrowRight}${id}`));
       hideArrow(getArrowById(`${arrowLeft}${id}`))
     }
@@ -282,16 +283,13 @@ const getSliderReferenceById = (sliderId) => {
   return document.getElementById(sliderId);
 };
 
-// const sliderInstance = getSliderReferenceById(slider);
-
 const sliderInstances = getSliderReferencesByClassName(slider);
 
 if (sliderInstances !== null) {
   for(sliderInstance of sliderInstances) {
     initSliderLogic(sliderInstance, false);
   };
-  // initSliderLogic(sliderInstance, false);
-  // window.onresize = () => { initSliderLogic(sliderInstance, true) };
+  
   window.onresize = () => { 
     for(sliderInstance of sliderInstances) {
       initSliderLogic(sliderInstance, true);
