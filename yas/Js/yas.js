@@ -74,7 +74,6 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
   sliderHelperValue.isDraggable = getIsDragable(sliderHelperValue.sliderInstance);
   setWidthOfChildren(sliderHelperValue.imagesInSlider, sliderHelperValue.widthOfImage);
   if(!isResizeEvent) {
-    addStyle(sliderHelperValue.sliderInstance);
     sliderHelperValue.numberOfImagesInSlider = countNumberOfImagesInSlider(sliderHelperValue.imagesInSlider);
     sliderHelperValue.rightQue = sliderHelperValue.numberOfImagesInSlider - sliderHelperValue.imagesPerFrame;
     sliderHelperValue.auto = getAutoRotateSpeed(sliderHelperValue.sliderInstance);
@@ -94,6 +93,7 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
         setUpDaD(sliderHelperValue.sliderInstance, getArrowById(`${arrowLeft}${sliderHelperValue.id}`), getArrowById(`${arrowRight}${sliderHelperValue.id}`), sliderHelperValue.id);
       }
     }
+    addStyle(sliderHelperValue.sliderInstance);
   }
   if(isResizeEvent) {
     resetImagesAfterResizeEvent();
