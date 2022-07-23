@@ -3,6 +3,10 @@ let globalState = {
   mouseUpPosition: undefined
 };
 const sliderHelpValuesArray = [];
+const defaultDisplay = 3;
+const defaultSpeed = 0.8;
+const defaultAuto = 2000;
+const defaultArrows = "BC";
 const arrowWrapper = "arrowWrapper";
 const arrowRight = "arrowRight";
 const arrowLeft = "arrowLeft";
@@ -190,7 +194,6 @@ const addRightClickAction = (rightArrow, leftArrow, sliderId) => {
 };
 
 const shiftRight = (rightArrow, leftArrow, sliderId) => {
-  
     let sliderHelperValue = getSliderHelperValuesById(sliderId);
     const { numberOfImagesInSlider, widthOfImage, imagesPerFrame, lastTransformValue, imagesInSlider, leftQue, rightQue, id } = sliderHelperValue;
     let transformValue;
@@ -237,11 +240,11 @@ const getSliderHelperValuesById = (id) => {
 }
 
 const getimagesPerFrameValue = (sliderInstance) => {
-  return sliderInstance.getAttribute("display");
+  return sliderInstance.getAttribute("display") ??= defaultDisplay;
 }
 
 const getAutoRotateSpeed = (sliderInstance) => {
-  return sliderInstance.getAttribute("auto");
+  return sliderInstance.getAttribute("auto") ??= defaultAuto;
 }
 
 const addArrowsToDOM = (sliderInstance, id) => {
@@ -257,11 +260,11 @@ const hideArrow = (arrowRef) => {
 };
 
 const getArrowPosition = (sliderInstance) => {
-  return sliderInstance.getAttribute("arrows");
+  return sliderInstance.getAttribute("arrows") ??= defaultArrows;
 }
 
 const getTransitionSpeed = (sliderInstance) => {
-  return sliderInstance.getAttribute("speed");
+  return sliderInstance.getAttribute("speed") ??= defaultSpeed;
 }
 
 const getArrowWrapperById = (id) => {
