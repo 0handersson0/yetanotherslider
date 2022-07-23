@@ -9,7 +9,8 @@ Implementation of an pure JS imageslider supporting auto rotate, dragable slides
           <img src="..." />
           <img src="..." />
           <img src="..." />
-          <img src="..." />`
+          <img src="..." />
+          </div>`
 
 ## Attributes
 ___
@@ -44,12 +45,14 @@ For multiple sliders on same page simply decorate with id attribute
           <img src="..." />
           <img src="..." />
           <img src="..." />
-        </div><div id="yas-2" class="slider">
+        </div>
+        <div id="yas-2" class="slider">
           <img src="..." />
           <img src="..." />
           <img src="..." />
           <img src="..." />
-        </div><div id="yas-3" class="slider">
+        </div>
+        <div id="yas-3" class="slider">
           <img src="..." />
           <img src="..." />
           <img src="..." />
