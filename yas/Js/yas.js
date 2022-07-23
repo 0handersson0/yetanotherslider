@@ -12,6 +12,48 @@ const arrowRight = "arrowRight";
 const arrowLeft = "arrowLeft";
 const slider = "slider";
 
+const style = `
+  .slider {
+  width: auto;
+  height: auto;
+  background-color: grey;
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  overflow: hidden;
+  position: relative;
+}
+
+.slider img {
+  height: auto;
+  width: auto;
+}
+
+.slider .arrow-wrapper {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+}
+
+.slider .arrow-wrapper .arrow {
+  display: none;
+  cursor: pointer;
+  margin-right: 10px;
+  margin-left: 10px;
+  margin-top: 15px;
+  width: 25px;
+  border-radius: 90px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: white;
+  opacity: 0.7;
+}
+
+.slider .arrow-wrapper .arrow:hover {
+  background-color: white;
+  opacity: 0.3;
+}`;
+
 const initSliderLogic = (sliderInstance, isResizeEvent) => {
   let sliderHelperValue = sliderHelpValuesArray.find(x => x.id === sliderInstance.id);
   if(sliderHelperValue === undefined) {
@@ -29,8 +71,10 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
   sliderHelperValue.widthOfSlider = getWidthOfSlider(sliderHelperValue.sliderInstance);
   sliderHelperValue.imagesPerFrame = getimagesPerFrameValue(sliderHelperValue.sliderInstance);
   sliderHelperValue.widthOfImage = sliderHelperValue.widthOfSlider / sliderHelperValue.imagesPerFrame;
+  sliderHelperValue.isDraggable = getIsDragable(sliderHelperValue.sliderInstance);
   setWidthOfChildren(sliderHelperValue.imagesInSlider, sliderHelperValue.widthOfImage);
   if(!isResizeEvent) {
+    addStyle(sliderHelperValue.sliderInstance);
     sliderHelperValue.numberOfImagesInSlider = countNumberOfImagesInSlider(sliderHelperValue.imagesInSlider);
     sliderHelperValue.rightQue = sliderHelperValue.numberOfImagesInSlider - sliderHelperValue.imagesPerFrame;
     sliderHelperValue.auto = getAutoRotateSpeed(sliderHelperValue.sliderInstance);
@@ -46,7 +90,9 @@ const initSliderLogic = (sliderInstance, isResizeEvent) => {
       if(sliderHelperValue.auto !== null) {
         sliderHelperValue.autoRotateId = setUpAutoRotate(sliderHelperValue.auto, Math.floor(sliderHelperValue.imagesInSlider.length/sliderHelperValue.imagesPerFrame), getArrowById(`${arrowLeft}${sliderHelperValue.id}`), getArrowById(`${arrowRight}${sliderHelperValue.id}`), sliderHelperValue.id);
       }
-       setUpDaD(sliderHelperValue.sliderInstance, getArrowById(`${arrowLeft}${sliderHelperValue.id}`), getArrowById(`${arrowRight}${sliderHelperValue.id}`), sliderHelperValue.id);
+      if(sliderHelperValue.isDraggable === "true") {
+        setUpDaD(sliderHelperValue.sliderInstance, getArrowById(`${arrowLeft}${sliderHelperValue.id}`), getArrowById(`${arrowRight}${sliderHelperValue.id}`), sliderHelperValue.id);
+      }
     }
   }
   if(isResizeEvent) {
@@ -114,6 +160,7 @@ const setUpAutoRotate = (rotateSpeed, steps, leftArrow, rightArrow, sliderId) =>
 }
 
 const setUpDaD = (sliderInstance, leftArrow, rightArrow, sliderId) => {
+  sliderInstance.style.cursor = "grab";
   sliderInstance.onmousedown = (event) => {
     sliderInstance.style.cursor = "grabbing";
     event.stopPropagation();
@@ -236,6 +283,10 @@ const shiftLeft = (rightArrow, leftArrow, sliderId) => {
     rotateEvent(id);
 }
 
+const addStyle = (sliderInstance) => {
+  sliderInstance.innerHTML += `<style>${style}</style>`;
+};
+
 const getSliderHelperValuesById = (id) => {
   return sliderHelpValuesArray.find(x => x.id === id);
 }
@@ -266,6 +317,10 @@ const getArrowPosition = (sliderInstance) => {
 
 const getTransitionSpeed = (sliderInstance) => {
   return sliderInstance.getAttribute("speed") ?? defaultSpeed;
+}
+
+const getIsDragable = (sliderInstance) => {
+  return sliderInstance.getAttribute("draggable") ?? "false";
 }
 
 const getArrowWrapperById = (id) => {

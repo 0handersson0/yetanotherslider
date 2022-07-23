@@ -20,6 +20,7 @@ ___
 | display | 3 
 | auto | 2000 (ms)
 | speed | 0.8 (s)
+| draggable | false
 | arrows | BC 
 
 ## Arrow positions attribute explination
