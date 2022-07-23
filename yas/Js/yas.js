@@ -240,11 +240,11 @@ const getSliderHelperValuesById = (id) => {
 }
 
 const getimagesPerFrameValue = (sliderInstance) => {
-  return sliderInstance.getAttribute("display") ??= defaultDisplay;
+  return sliderInstance.getAttribute("display") ?? defaultDisplay;
 }
 
 const getAutoRotateSpeed = (sliderInstance) => {
-  return sliderInstance.getAttribute("auto") ??= defaultAuto;
+  return sliderInstance.getAttribute("auto") ?? defaultAuto;
 }
 
 const addArrowsToDOM = (sliderInstance, id) => {
@@ -260,11 +260,11 @@ const hideArrow = (arrowRef) => {
 };
 
 const getArrowPosition = (sliderInstance) => {
-  return sliderInstance.getAttribute("arrows") ??= defaultArrows;
+  return sliderInstance.getAttribute("arrows") ?? defaultArrows;
 }
 
 const getTransitionSpeed = (sliderInstance) => {
-  return sliderInstance.getAttribute("speed") ??= defaultSpeed;
+  return sliderInstance.getAttribute("speed") ?? defaultSpeed;
 }
 
 const getArrowWrapperById = (id) => {
