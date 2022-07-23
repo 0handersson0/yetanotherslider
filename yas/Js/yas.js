@@ -94,7 +94,8 @@ const setUpAutoRotate = (rotateSpeed, steps, leftArrow, rightArrow, sliderId) =>
   return setInterval(() => {
     const sliderHelperValues = getSliderHelperValuesById(sliderId);
     const {step, moveRight} = sliderHelperValues;
-    if(step < steps - 1) {
+    var stepCounter = steps !== 1 ? steps - 1 : steps;
+    if(step < stepCounter) {
       if(moveRight) {
         shiftLeft(rightArrow, leftArrow, sliderId);
         sliderHelperValues.step++;
