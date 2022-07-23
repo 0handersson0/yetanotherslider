@@ -1,17 +1,36 @@
 # Yet another slider 🤷‍♂️
 
-Implementation of an pure JS imageslider supporting auto rotate, dragable slides and clickable arrows.
+Implementation of an pure JS imageslider supporting auto rotate, draggable slides and clickable arrows.
 
 # To use
+Download and add ref to [yas.js](https://github.com/0handersson0/yetanotherslider/blob/main/lib/yas.js). 👾
 
 ### Minimal implementation
-`<div id="yas" class="slider">
+```
+<html>
+    <body>
+        <div id="yas_1" class="slider">
           <img src="..." />
           <img src="..." />
           <img src="..." />
           <img src="..." />
-          </div>`
-
+        </div>
+        <div id="yas_2" class="slider">
+          <img src="..." />
+          <img src="..." />
+          <img src="..." />
+          <img src="..." />
+        </div>
+        <div id="yas_3" class="slider">
+          <img src="..." />
+          <img src="..." />
+          <img src="..." />
+          <img src="..." />
+        </div> 
+        <script src="yas.js"></script>
+    </body>
+</html>
+```
 ## Attributes
 ___
 
@@ -23,7 +42,7 @@ ___
 | draggable | false
 | arrows | BC 
 
-## Arrow positions attribute explination
+## Arrow position attribute explination
 
 ___
 
