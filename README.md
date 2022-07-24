@@ -15,18 +15,6 @@ Download and add ref to [yas.js](https://github.com/0handersson0/yetanotherslide
           <img src="..." />
           <img src="..." />
         </div>
-        <div id="yas_2" class="slider">
-          <img src="..." />
-          <img src="..." />
-          <img src="..." />
-          <img src="..." />
-        </div>
-        <div id="yas_3" class="slider">
-          <img src="..." />
-          <img src="..." />
-          <img src="..." />
-          <img src="..." />
-        </div> 
         <script src="yas.js"></script>
     </body>
 </html>
