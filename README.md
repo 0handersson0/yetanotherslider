@@ -15,7 +15,7 @@ Download and add ref to [yas.js](https://github.com/0handersson0/yetanotherslide
           <img src="..." />
           <img src="..." />
         </div>
-        <script src="yas.js"></script>
+        <script src="./yas.js"></script>
     </body>
 </html>
 ```
